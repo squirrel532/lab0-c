@@ -75,6 +75,7 @@ bool q_insert_tail(queue_t *q, char *s)
         q->head = newh;
     } else {
         q->tail->next = newh;
+        q->tail = newh;
     }
 
     ++q->size;
