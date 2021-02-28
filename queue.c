@@ -90,11 +90,26 @@ error:
  */
 bool q_remove_head(queue_t *q, char *sp, size_t bufsize)
 {
-    /* TODO: You need to fix up this code. */
-    /* TODO: Remove the above comment when you are about to implement. */
-    q->head = q->head->next;
-    /* TODO: Update q->size */
+    if (q->size == 0)
+        goto error;
+
+    list_ele_t *ele = q->head;
+    if (sp != NULL) {
+        strncpy(sp, ele->value, bufsize);
+        sp[bufsize - 1] = '\0';
+    }
+
+    q->head = ele->next;
+    --q->size;
+    if (q->size == 0) {
+        q->tail = NULL;
+    }
+
+    _list_ele_free(ele);
     return true;
+
+error:
+    return false;
 }
 
 /*
@@ -160,4 +175,15 @@ free_ele:
 
 exit:
     return NULL;
+}
+
+/*
+ * Free the ele and all its members
+ */
+void _list_ele_free(list_ele_t *ele)
+{
+    if (ele->value != NULL)
+        free(ele->value);
+
+    free(ele);
 }
