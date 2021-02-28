@@ -11,6 +11,10 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+
+/* Maximum length of value string, excluding '\0' */
+#define MAX_VALUE_LENGTH 255
+
 /* Data structure declarations */
 
 /* Linked list element (You shouldn't need to change this) */
@@ -25,6 +29,7 @@ typedef struct ELE {
 /* Queue structure */
 typedef struct {
     list_ele_t *head; /* Linked list of elements */
+    list_ele_t *tail;
     size_t size;
 } queue_t;
 
@@ -91,5 +96,10 @@ void q_reverse(queue_t *q);
  * element, do nothing.
  */
 void q_sort(queue_t *q);
+
+/*
+ * Allocate an element
+ */
+list_ele_t *_list_ele_alloc(char *s);
 
 #endif /* LAB0_QUEUE_H */

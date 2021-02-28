@@ -14,6 +14,7 @@ queue_t *q_new()
     queue_t *q = malloc(sizeof(queue_t));
     /* TODO: What if malloc returned NULL? */
     q->head = NULL;
+    q->tail = NULL;
     q->size = 0;
     return q;
 }
@@ -35,15 +36,21 @@ void q_free(queue_t *q)
  */
 bool q_insert_head(queue_t *q, char *s)
 {
-    list_ele_t *newh;
-    /* TODO: What should you do if the q is NULL? */
-    newh = malloc(sizeof(list_ele_t));
-    /* Don't forget to allocate space for the string and copy it */
-    /* What if either call to malloc returns NULL? */
+    list_ele_t *newh = _list_ele_alloc(s);
+    if (newh == NULL)
+        goto error;
+
     newh->next = q->head;
     q->head = newh;
-    /* TODO: Update q->size */
+    if (q->size == 0) {
+        q->tail = newh;
+    }
+
+    ++q->size;
     return true;
+
+error:
+    return false;
 }
 
 /*
@@ -55,10 +62,21 @@ bool q_insert_head(queue_t *q, char *s)
  */
 bool q_insert_tail(queue_t *q, char *s)
 {
-    /* TODO: You need to write the complete code for this function */
-    /* Remember: It should operate in O(1) time */
-    /* TODO: Remove the above comment when you are about to implement. */
-    /* TODO: Update q->size */
+    list_ele_t *newh = _list_ele_alloc(s);
+    if (newh == NULL)
+        goto error;
+
+    if (q->size == 0) {
+        q->tail = newh;
+        q->head = newh;
+    } else {
+        q->tail->next = newh;
+    }
+
+    ++q->size;
+    return true;
+
+error:
     return false;
 }
 
@@ -110,4 +128,36 @@ void q_sort(queue_t *q)
 {
     /* TODO: You need to write the code for this function */
     /* TODO: Remove the above comment when you are about to implement. */
+}
+
+/*
+ * Allocate an element, and initialize value from s with max length to
+ * MAX_VALUE_LENGTH, excluding terminating NULL byte ('\0');
+ */
+list_ele_t *_list_ele_alloc(char *s)
+{
+    list_ele_t *ele = malloc(sizeof(list_ele_t));
+    if (ele == NULL)
+        goto exit;
+
+    int vlen = strlen(s);
+    if (vlen > MAX_VALUE_LENGTH) {
+        vlen = MAX_VALUE_LENGTH;
+    }
+    char *value = malloc(sizeof(char) * vlen + 1);
+    if (value == NULL)
+        goto free_ele;
+
+    ele->value = value;
+    ele->next = NULL;
+    strncpy(ele->value, s, vlen);
+    ele->value[vlen] = '\0';  // make sure val is always NULL terminated
+
+    return ele;
+
+free_ele:
+    free(ele);
+
+exit:
+    return NULL;
 }
