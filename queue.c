@@ -119,7 +119,7 @@ bool q_remove_head(queue_t *q, char *sp, size_t bufsize)
     if (q == NULL)
         goto exit;
 
-    if (q->size == 0)
+    if (q->head == NULL)
         goto exit;
 
     list_ele_t *ele = q->head;
