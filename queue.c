@@ -193,6 +193,12 @@ void q_sort(queue_t *q)
 
 void q_bubble_sort(queue_t *q)
 {
+    if (q == NULL)
+        return;
+
+    if (q->head == NULL)
+        return;
+
     list_ele_t *finished = NULL;
     while (q->head != finished) {
         list_ele_t **curr = &(q->head);
@@ -205,6 +211,10 @@ void q_bubble_sort(queue_t *q)
         }
         finished = *curr;
     }
+
+    q->tail = q->head;
+    while (q->tail->next != NULL)
+        q->tail = q->tail->next;
 }
 
 void _q_swap(list_ele_t **a, list_ele_t **b)
