@@ -5,6 +5,18 @@
 #include "harness.h"
 #include "queue.h"
 
+
+#define SWAP(type, A, B) \
+    do {                 \
+        type tmp;        \
+        tmp = A;         \
+        A = B;           \
+        B = tmp;         \
+    } while (0)
+
+void q_bubble_sort(queue_t *q);
+void _q_swap(list_ele_t **a, list_ele_t **b);
+
 /*
  * Create empty queue.
  * Return NULL if could not allocate space.
@@ -158,6 +170,45 @@ void q_sort(queue_t *q)
 {
     /* TODO: You need to write the code for this function */
     /* TODO: Remove the above comment when you are about to implement. */
+
+    q_bubble_sort(q);
+}
+
+void q_bubble_sort(queue_t *q)
+{
+    list_ele_t *finished = NULL;
+    while (q->head != finished) {
+        list_ele_t **curr = &(q->head);
+        while ((*curr)->next != finished) {
+            if (strncmp((*curr)->value, (*curr)->next->value,
+                        MAX_VALUE_LENGTH) > 0) {
+                _q_swap(curr, &((*curr)->next));
+            }
+            curr = &((*curr)->next);
+        }
+        finished = *curr;
+    }
+}
+
+void _q_swap(list_ele_t **a, list_ele_t **b)
+{
+    list_ele_t *a_ptr = *a, *b_ptr = *b;
+
+    if (a_ptr == b_ptr)
+        return;
+
+    if (a_ptr->next == b_ptr) {
+        a_ptr->next = b_ptr->next;
+        b_ptr->next = a_ptr;
+        *a = b_ptr;
+    } else if (b_ptr->next == a_ptr) {
+        b_ptr->next = a_ptr->next;
+        a_ptr->next = b_ptr;
+        *b = a_ptr;
+    } else {
+        SWAP(list_ele_t *, *a, *b);
+        SWAP(list_ele_t *, (*a)->next, (*b)->next);
+    }
 }
 
 /*
