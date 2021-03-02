@@ -14,6 +14,9 @@
         B = tmp;         \
     } while (0)
 
+
+list_ele_t *_list_ele_alloc(char *s);
+void _list_ele_free(list_ele_t *ele);
 void q_bubble_sort(queue_t *q);
 void _q_swap(list_ele_t **a, list_ele_t **b);
 

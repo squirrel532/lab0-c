@@ -97,14 +97,4 @@ void q_reverse(queue_t *q);
  */
 void q_sort(queue_t *q);
 
-/*
- * Allocate an element
- */
-list_ele_t *_list_ele_alloc(char *s);
-
-/*
- * Free the ele and all its members
- */
-void _list_ele_free(list_ele_t *ele);
-
 #endif /* LAB0_QUEUE_H */
