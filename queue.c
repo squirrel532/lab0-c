@@ -52,9 +52,12 @@ void q_free(queue_t *q)
  */
 bool q_insert_head(queue_t *q, char *s)
 {
+    if (q == NULL)
+        goto exit;
+
     list_ele_t *newh = _list_ele_alloc(s);
     if (newh == NULL)
-        goto error;
+        goto exit;
 
     newh->next = q->head;
     q->head = newh;
@@ -65,7 +68,7 @@ bool q_insert_head(queue_t *q, char *s)
     ++q->size;
     return true;
 
-error:
+exit:
     return false;
 }
 
@@ -78,9 +81,12 @@ error:
  */
 bool q_insert_tail(queue_t *q, char *s)
 {
+    if (q == NULL)
+        goto exit;
+
     list_ele_t *newh = _list_ele_alloc(s);
     if (newh == NULL)
-        goto error;
+        goto exit;
 
     if (q->size == 0) {
         q->tail = newh;
@@ -93,7 +99,7 @@ bool q_insert_tail(queue_t *q, char *s)
     ++q->size;
     return true;
 
-error:
+exit:
     return false;
 }
 
@@ -107,8 +113,11 @@ error:
  */
 bool q_remove_head(queue_t *q, char *sp, size_t bufsize)
 {
+    if (q == NULL)
+        goto exit;
+
     if (q->size == 0)
-        goto error;
+        goto exit;
 
     list_ele_t *ele = q->head;
     if (sp != NULL) {
@@ -125,7 +134,7 @@ bool q_remove_head(queue_t *q, char *sp, size_t bufsize)
     _list_ele_free(ele);
     return true;
 
-error:
+exit:
     return false;
 }
 
@@ -135,6 +144,8 @@ error:
  */
 int q_size(queue_t *q)
 {
+    if (q == NULL)
+        return 0;
     return q->size;
 }
 
@@ -147,6 +158,9 @@ int q_size(queue_t *q)
  */
 void q_reverse(queue_t *q)
 {
+    if (q == NULL)
+        return;
+
     if (q->size <= 1)
         return;
 
