@@ -5,6 +5,10 @@
 #include "harness.h"
 #include "queue.h"
 
+#ifndef SORT_TREND_FACTOR
+#define SORT_TREND_FACTOR 2
+#endif
+
 
 #define SWAP(type, A, B) \
     do {                 \
@@ -17,8 +21,10 @@
 
 list_ele_t *_list_ele_alloc(char *s);
 void _list_ele_free(list_ele_t *ele);
-void q_bubble_sort(queue_t *q);
+void q_bubble_sort(list_ele_t **head, list_ele_t **tail);
+void q_qsort(list_ele_t **head, list_ele_t **tail);
 void _q_swap(list_ele_t **a, list_ele_t **b);
+void _q_insert(list_ele_t **target, list_ele_t *e);
 
 /*
  * Create empty queue.
@@ -187,23 +193,42 @@ void q_reverse(queue_t *q)
  */
 void q_sort(queue_t *q)
 {
-    /* TODO: You need to write the code for this function */
-    /* TODO: Remove the above comment when you are about to implement. */
+    if (q == NULL || q->head == NULL)
+        return;
 
-    q_bubble_sort(q);
+    if (q->size < 10) {
+        q_bubble_sort(&(q->head), &(q->tail->next));
+        goto exit;
+    }
+
+    size_t asc_trend = 0, desc_trend = 0;
+    list_ele_t *curr = q->head;
+    while (curr->next != NULL) {
+        int cmp = strncmp(curr->value, curr->next->value, MAX_VALUE_LENGTH);
+        if (cmp > 0)
+            ++desc_trend;
+        else if (cmp < 0)
+            ++asc_trend;
+    }
+
+    /* reverse qqueue before sorting if descending order is major in queue */
+    if (desc_trend * SORT_TREND_FACTOR > q->size && desc_trend > asc_trend) {
+        q_reverse(q);
+    }
+
+    q_qsort(&(q->head), &(q->tail->next));
+
+exit:
+    q->tail = q->head;
+    while (q->tail->next != NULL)
+        q->tail = q->tail->next;
 }
 
-void q_bubble_sort(queue_t *q)
+void q_bubble_sort(list_ele_t **begin, list_ele_t **end)
 {
-    if (q == NULL)
-        return;
-
-    if (q->head == NULL)
-        return;
-
-    list_ele_t *finished = NULL;
-    while (q->head != finished) {
-        list_ele_t **curr = &(q->head);
+    list_ele_t *finished = *end;
+    while (finished != *begin) {
+        list_ele_t **curr = begin;
         while ((*curr)->next != finished) {
             if (strncmp((*curr)->value, (*curr)->next->value,
                         MAX_VALUE_LENGTH) > 0) {
@@ -213,10 +238,40 @@ void q_bubble_sort(queue_t *q)
         }
         finished = *curr;
     }
+}
 
-    q->tail = q->head;
-    while (q->tail->next != NULL)
-        q->tail = q->tail->next;
+void q_qsort(list_ele_t **begin, list_ele_t **end)
+{
+    if (begin == end)  // zero element
+        return;
+    if ((*begin)->next == *end)  // single element
+        return;
+
+    list_ele_t *piviot = *begin;
+    list_ele_t *curr = piviot->next;
+    piviot->next = *end;  // cut out rest of queue
+
+    list_ele_t **left_begin = begin, **left_end = left_begin,
+               **right_begin = &(piviot->next), **right_end = right_begin;
+    while (curr != *end && curr != NULL) {
+        list_ele_t *next = curr->next;
+        int cmp = strncmp(piviot->value, curr->value, MAX_VALUE_LENGTH);
+        if (cmp > 0) {
+            _q_insert(left_end, curr);
+            left_end = &((*left_end)->next);
+        } else if (cmp == 0) {
+            _q_insert(right_begin, curr);
+            if (right_begin == right_end)
+                right_end = &((*right_end)->next);
+            right_begin = &((*right_begin)->next);
+        } else {
+            _q_insert(right_end, curr);
+            right_end = &((*right_end)->next);
+        }
+        curr = next;
+    }
+    q_qsort(left_begin, left_end);
+    q_qsort(right_begin, right_end);
 }
 
 void _q_swap(list_ele_t **a, list_ele_t **b)
@@ -238,6 +293,15 @@ void _q_swap(list_ele_t **a, list_ele_t **b)
         SWAP(list_ele_t *, *a, *b);
         SWAP(list_ele_t *, (*a)->next, (*b)->next);
     }
+}
+
+/*
+ * Insert element before *target
+ */
+void _q_insert(list_ele_t **target, list_ele_t *e)
+{
+    e->next = *target;
+    *target = e;
 }
 
 /*
