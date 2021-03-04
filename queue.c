@@ -248,30 +248,45 @@ void q_qsort(list_ele_t **begin, list_ele_t **end)
         return;
 
     list_ele_t *piviot = *begin;
-    list_ele_t *curr = piviot->next;
+    list_ele_t *curr = piviot->next, *curr_end = *end;
     piviot->next = *end;  // cut out rest of queue
 
     list_ele_t **left_begin = begin, **left_end = left_begin,
                **right_begin = &(piviot->next), **right_end = right_begin;
-    while (curr != *end && curr != NULL) {
+    size_t left = 0, right = 0;
+    while (curr != curr_end) {
         list_ele_t *next = curr->next;
         int cmp = strncmp(piviot->value, curr->value, MAX_VALUE_LENGTH);
         if (cmp > 0) {
             _q_insert(left_end, curr);
             left_end = &((*left_end)->next);
+            ++left;
         } else if (cmp == 0) {
             _q_insert(right_begin, curr);
-            if (right_begin == right_end)
-                right_end = &((*right_end)->next);
-            right_begin = &((*right_begin)->next);
+            if (right_begin == right_end) {
+                right_begin = right_end = &((*right_end)->next);
+            } else {
+                right_begin = &((*right_begin)->next);
+            }
         } else {
             _q_insert(right_end, curr);
             right_end = &((*right_end)->next);
+            ++right;
         }
         curr = next;
     }
-    q_qsort(left_begin, left_end);
-    q_qsort(right_begin, right_end);
+
+    if (left < 5) {
+        q_bubble_sort(left_begin, left_end);
+    } else {
+        q_qsort(left_begin, left_end);
+    }
+
+    if (right < 5) {
+        q_bubble_sort(right_begin, right_end);
+    } else {
+        q_qsort(right_begin, right_end);
+    }
 }
 
 void _q_swap(list_ele_t **a, list_ele_t **b)
