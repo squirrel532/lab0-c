@@ -25,6 +25,7 @@ void q_bubble_sort(list_ele_t **head, list_ele_t **tail);
 void q_qsort(list_ele_t **head, list_ele_t **tail);
 void _q_swap(list_ele_t **a, list_ele_t **b);
 void _q_insert(list_ele_t **target, list_ele_t *e);
+int _q_quick_check(list_ele_t **begin, list_ele_t **end);
 
 /*
  * Create empty queue.
@@ -196,29 +197,20 @@ void q_sort(queue_t *q)
     if (q == NULL || q->head == NULL)
         return;
 
+    int sorted = _q_quick_check(&(q->head), &(q->tail->next));
+    if (sorted == 1)
+        return;
+    if (sorted == -1) {
+        q_reverse(q);
+        return;
+    }
+
     if (q->size < 10) {
         q_bubble_sort(&(q->head), &(q->tail->next));
-        goto exit;
+    } else {
+        q_qsort(&(q->head), &(q->tail->next));
     }
 
-    size_t asc_trend = 0, desc_trend = 0;
-    list_ele_t *curr = q->head;
-    while (curr->next != NULL) {
-        int cmp = strncmp(curr->value, curr->next->value, MAX_VALUE_LENGTH);
-        if (cmp > 0)
-            ++desc_trend;
-        else if (cmp < 0)
-            ++asc_trend;
-    }
-
-    /* reverse qqueue before sorting if descending order is major in queue */
-    if (desc_trend * SORT_TREND_FACTOR > q->size && desc_trend > asc_trend) {
-        q_reverse(q);
-    }
-
-    q_qsort(&(q->head), &(q->tail->next));
-
-exit:
     q->tail = q->head;
     while (q->tail->next != NULL)
         q->tail = q->tail->next;
@@ -287,6 +279,38 @@ void q_qsort(list_ele_t **begin, list_ele_t **end)
     } else {
         q_qsort(right_begin, right_end);
     }
+}
+/*
+ * Check queue queue in O(n) time.
+ * Returns 1 if queue is already sorted, -1 for sorted but reversed.
+ */
+int _q_quick_check(list_ele_t **begin, list_ele_t **end)
+{
+    if (*begin == NULL)
+        return 1;
+
+    if (*begin == *end)
+        return 1;
+
+    int sorted = 0, reversed = 0;
+    list_ele_t *curr = (*begin);
+    while (&(curr->next) != end) {
+        list_ele_t *next = curr->next;
+        int cmp = strncmp(curr->value, next->value, MAX_VALUE_LENGTH);
+        if (cmp > 0) {
+            sorted = 1;  // set not sorted
+        } else if (cmp < 0) {
+            reversed = 1;  // set not reversed
+        }
+        curr = curr->next;
+    }
+
+    if (sorted == 0)
+        return 1;
+    if (reversed == 0)
+        return -1;
+
+    return 0;
 }
 
 void _q_swap(list_ele_t **a, list_ele_t **b)
